@@ -1,0 +1,189 @@
+﻿@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    bool isLoginPage = currentController == "Login" && currentAction == "Index";
+    bool isScreenPage = currentController == "Screen" && currentAction == "Index"; // هنا أضفنا هذا الشرط
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Lockers</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        footer {
+            margin-top: auto;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    @if (!isLoginPage && !isScreenPage) // إخفاء الـ Navbar إذا كانت الصفحة هي Screen
+    {
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+                <div class="container-fluid d-flex justify-content-between align-items-center">
+                    <a class="navbar-brand fw-bold text-danger" asp-controller="Reception" asp-action="Index">Lockers</a>
+
+                    <div class="d-flex align-items-center">
+                        <button type="button" id="unlockBtn" class="btn btn-outline-danger btn-sm me-2">
+                            Unlock Locker
+                        </button>
+
+                        <form asp-controller="Login" asp-action="Logout" method="post" class="mb-0">
+                            <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            </nav>
+        </header>
+    }
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="text-center text-muted">
+        <div class="container">&copy; 2025 - Lockers</div>
+    </footer>
+
+    <!-- 🔹 Unlock Modal -->
+    @if (!isLoginPage && !isScreenPage) // إخفاء الـ Modals إذا كانت الصفحة هي Screen
+    {
+        <div class="modal fade" id="unlockModal" tabindex="-1" aria-labelledby="unlockModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="unlockModalLabel">Unlock Locker</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label for="lockerSelect">Select a Locker:</label>
+                        <select id="lockerSelect" class="form-select"></select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmUnlock">Unlock</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔹 Info Modal -->
+        <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="infoModalLabel">Message</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center" id="infoModalBody"></div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔹 Confirm Modal -->
+        <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title" id="confirmModalLabel">Confirm Unlock</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center" id="confirmModalBody">
+                        Are you sure you want to unlock this locker?
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-danger" id="confirmYes">Yes, Unlock</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @if (!isLoginPage && !isScreenPage)
+    {
+        <script>
+            const unlockBtn = document.getElementById("unlockBtn");
+            const lockerSelect = document.getElementById("lockerSelect");
+            const confirmUnlock = document.getElementById("confirmUnlock");
+            const confirmYes = document.getElementById("confirmYes");
+            let selectedLockerId = null;
+
+            // 🔹 Load occupied lockers
+            unlockBtn.addEventListener("click", async () => {
+                const res = await fetch('/Reception/GetOccupiedLockers');
+                const lockers = await res.json();
+
+                lockerSelect.innerHTML = '<option value="">-- Select Locker --</option>';
+                lockers.forEach(l => {
+                    lockerSelect.innerHTML += `<option value="${l.lockerID}">${l.lockerCode}</option>`;
+                });
+
+                new bootstrap.Modal(document.getElementById('unlockModal')).show();
+            });
+
+            // 🔹 Show confirmation modal
+            confirmUnlock.addEventListener("click", () => {
+                selectedLockerId = lockerSelect.value;
+                if (!selectedLockerId) {
+                    showInfoModal("Please select a locker first.");
+                    return;
+                }
+                bootstrap.Modal.getInstance(document.getElementById("unlockModal")).hide();
+                new bootstrap.Modal(document.getElementById("confirmModal")).show();
+            });
+
+            // 🔹 When user confirms
+            confirmYes.addEventListener("click", async () => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById("confirmModal"));
+                modal.hide();
+
+                const res = await fetch('/Reception/ManualUnlock', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(parseInt(selectedLockerId))
+                });
+
+                const data = await res.json();
+                showInfoModal(data.message || "Locker unlocked successfully.", true);
+            });
+
+            // 🔹 Reusable info modal
+            function showInfoModal(message, reload = false) {
+                document.getElementById("infoModalBody").innerText = message;
+                const modal = new bootstrap.Modal(document.getElementById("infoModal"));
+                modal.show();
+
+                const infoModal = document.getElementById("infoModal");
+                infoModal.addEventListener("hidden.bs.modal", () => {
+                    if (reload) location.reload();
+                }, { once: true });
+            }
+        </script>
+    }
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

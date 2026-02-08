@@ -1,0 +1,11 @@
+﻿@{
+    ViewData["Title"] = "Reception - Choose Gender";
+}
+
+<div class="container text-center mt-5">
+    <h2>Select Gender</h2>
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <a href="@Url.Action("Rooms", "Reception", new { gender = "Male" })" class="btn btn-primary btn-lg">Male</a>
+        <a href="@Url.Action("Rooms", "Reception", new { gender = "Female" })" class="btn btn-danger btn-lg">Female</a>
+    </div>
+</div>

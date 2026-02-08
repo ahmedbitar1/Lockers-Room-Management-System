@@ -1,0 +1,17 @@
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\bin\Release\net9.0\LockerRoom.Infrastructure.deps.json
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\bin\Release\net9.0\LockerRoom.Infrastructure.dll
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\bin\Release\net9.0\LockerRoom.Infrastructure.pdb
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\bin\Release\net9.0\LockerRoom.Application.dll
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\bin\Release\net9.0\LockerRoom.Core.dll
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\bin\Release\net9.0\LockerRoom.Core.pdb
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\bin\Release\net9.0\LockerRoom.Application.pdb
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\obj\Release\net9.0\LockerRoom.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\obj\Release\net9.0\LockerRoom.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\obj\Release\net9.0\LockerRoom.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\obj\Release\net9.0\LockerRoom.Infrastructure.AssemblyInfo.cs
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\obj\Release\net9.0\LockerRoom.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\obj\Release\net9.0\LockerRo.0A277C9A.Up2Date
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\obj\Release\net9.0\LockerRoom.Infrastructure.dll
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\obj\Release\net9.0\refint\LockerRoom.Infrastructure.dll
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\obj\Release\net9.0\LockerRoom.Infrastructure.pdb
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Infrastructure\obj\Release\net9.0\ref\LockerRoom.Infrastructure.dll

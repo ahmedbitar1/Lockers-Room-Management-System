@@ -1,0 +1,14 @@
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Domain\bin\Release\net9.0\LockerRoom.Core.deps.json
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Domain\bin\Release\net9.0\LockerRoom.Core.runtimeconfig.json
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Domain\bin\Release\net9.0\LockerRoom.Core.dll
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Domain\bin\Release\net9.0\LockerRoom.Core.pdb
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Domain\obj\Release\net9.0\LockerRoom.Core.csproj.AssemblyReference.cache
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Domain\obj\Release\net9.0\LockerRoom.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Domain\obj\Release\net9.0\LockerRoom.Core.AssemblyInfoInputs.cache
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Domain\obj\Release\net9.0\LockerRoom.Core.AssemblyInfo.cs
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Domain\obj\Release\net9.0\LockerRoom.Core.csproj.CoreCompileInputs.cache
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Domain\obj\Release\net9.0\LockerRoom.Core.dll
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Domain\obj\Release\net9.0\refint\LockerRoom.Core.dll
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Domain\obj\Release\net9.0\LockerRoom.Core.pdb
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Domain\obj\Release\net9.0\LockerRoom.Core.genruntimeconfig.cache
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Domain\obj\Release\net9.0\ref\LockerRoom.Core.dll

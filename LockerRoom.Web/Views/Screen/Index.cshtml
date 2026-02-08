@@ -1,0 +1,200 @@
+﻿@{
+    ViewData["Title"] = "Screen Mode";
+    ViewData["HideLayout"] = true;
+}
+
+<div class="screen-container d-flex justify-content-center align-items-center">
+    <button id="scanButton" class="btn-scan">
+        <i class="bi bi-upc-scan me-2"></i> Scan Bracelet
+    </button>
+</div>
+
+<!-- ⭐ BOOKING MODAL -->
+<div class="modal fade" id="bookingModal" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen modal-dialog-centered">
+        <div class="modal-content booking-card">
+            <div class="modal-body text-center p-5">
+                <h1 class="fw-bold mb-5 title-main">Booking Details</h1>
+
+                <div class="details-box mx-auto">
+                    <div class="row detail-row">
+                        <div class="col-4 detail-title">Group ID</div>
+                        <div class="col-8 detail-value" id="groupId"></div>
+                    </div>
+                    <div class="row detail-row">
+                        <div class="col-4 detail-title">Locker</div>
+                        <div class="col-8 detail-value" id="lockerCode"></div>
+                    </div>
+                    <div class="row detail-row">
+                        <div class="col-4 detail-title">Gender</div>
+                        <div class="col-8 detail-value" id="gender"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ⭐ ALERT MODAL -->
+<div class="modal fade" id="alertModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content alert-box text-center p-4">
+            <h2 class="alert-text" id="alertMessage"></h2>
+        </div>
+    </div>
+</div>
+
+<style>
+    body, html {
+        height: 100%;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        font-family: 'Segoe UI', sans-serif;
+        overflow: hidden;
+    }
+
+    .screen-container {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btn-scan {
+        background: linear-gradient(90deg, #00b09b, #96c93d);
+        color: white;
+        font-size: 2.3rem;
+        padding: 35px 90px;
+        border-radius: 50px;
+        border: none;
+        box-shadow: 0 0 25px rgba(0,0,0,0.3);
+        transition: 0.3s;
+    }
+
+        .btn-scan:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 45px rgba(150, 201, 61, 0.6);
+        }
+
+  
+    .booking-card {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: none;
+        border-radius: 40px;
+        overflow: hidden;
+    }
+
+    .title-main {
+        font-size: 3rem;
+        color: #00ffcc;
+        text-shadow: 0 0 20px #00ffcc;
+    }
+
+    .details-box {
+        width: 70%;
+
+    }
+
+    .detail-row {
+        font-size: 3.2rem;
+        padding: 15px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, .3);
+    }
+
+    .detail-title {
+        color: #9fffdd;
+        font-weight: bold;
+        text-align: left;
+    }
+
+    .detail-value {
+        color: white;
+        text-align: right;
+    }
+
+    /* ⭐ Alert Modal */
+    .alert-box {
+        background: rgba(255, 100, 100, 0.2);
+        backdrop-filter: blur(8px);
+        border-radius: 25px;
+    }
+
+    .alert-text {
+        font-size: 3rem;
+        color: #ffdddd;
+        font-weight: bold;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        const scanButton = document.getElementById("scanButton");
+        const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
+        const alertModal = new bootstrap.Modal(document.getElementById('alertModal'));
+        const alertMessage = document.getElementById("alertMessage");
+
+        let lastScanTime = 0;
+
+        scanButton.addEventListener("click", () => startScan());
+
+        function startScan() {
+            let code = "";
+            let lastKeyTime = Date.now();
+
+            const onKey = (e) => {
+
+                // 🛑 يمنع الكتابة العادية
+                const now = Date.now();
+                if (now - lastKeyTime > 70) {
+                    code = "";
+                }
+                lastKeyTime = now;
+
+                if (e.key === "Enter") {
+                    document.removeEventListener("keydown", onKey);
+
+                    if (code.length < 4) {
+                        showAlert("Invalid Scan — Use Bracelet Reader Only");
+                        return;
+                    }
+
+                    fetchBookingDetails(code.trim());
+                } else {
+                    code += e.key;
+                }
+            };
+
+            document.addEventListener("keydown", onKey);
+        }
+
+        function showAlert(msg) {
+            alertMessage.textContent = msg;
+            alertModal.show();
+            setTimeout(() => alertModal.hide(), 3000);
+        }
+
+        async function fetchBookingDetails(bracelet) {
+            try {
+                const resp = await fetch(`/Screen/GetBookingByBracelet?bracelet=${bracelet}`);
+                if (!resp.ok) throw new Error();
+
+                const data = await resp.json();
+
+                if (!data || !data.lockerCode) {
+                    showAlert("No booking found!");
+                    return;
+                }
+
+                document.getElementById("gender").textContent = data.gender;
+                document.getElementById("groupId").textContent = data.groupId;
+                document.getElementById("lockerCode").textContent = data.lockerCode;
+
+                bookingModal.show();
+                setTimeout(() => bookingModal.hide(), 10000);
+
+            } catch (err) {
+                showAlert("Connection Error");
+            }
+        }
+    </script>
+}

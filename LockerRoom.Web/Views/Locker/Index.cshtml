@@ -1,0 +1,50 @@
+﻿@model IEnumerable<LockerRoom.Core.Entities.Locker>
+
+@{
+    ViewData["Title"] = "Lockers List";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">All Lockers</h2>
+
+    <a class="btn btn-primary mb-3" asp-action="Create">+ Add New Locker</a>
+
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Group ID</th>
+                <th>Gender</th>
+                <th>Code</th>
+                <th>Is Booked</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var locker in Model)
+            {
+                <tr>
+                    <td>@locker.LockerID</td>
+                    <td>@locker.GroupID</td>
+                    <td>@locker.Gender</td>
+                    <td>@locker.LockerCode</td>
+                    <td>
+                        @if (locker.IsOccupied)
+                        {
+                            <span class="badge bg-danger">Booked</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Available</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@locker.LockerID" class="btn btn-info btn-sm">View</a>
+                        <a asp-action="Edit" asp-route-id="@locker.LockerID" class="btn btn-warning btn-sm">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@locker.LockerID" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

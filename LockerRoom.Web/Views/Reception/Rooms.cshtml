@@ -1,0 +1,756 @@
+﻿@using Microsoft.AspNetCore.Html
+@model IEnumerable<LockerRoom.Core.Entities.Locker>
+
+@{
+    ViewData["Title"] = $"Reception — {ViewBag.Gender}";
+    var groups = Model.GroupBy(l => l.GroupID).ToList();
+}
+
+<div class="container-fluid mt-4">
+    <h2 class="text-center mb-4 fw-bold">Reception — @ViewBag.Gender</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">No lockers found for @ViewBag.Gender</div>
+    }
+    else
+    {
+        <div class="locker-layout d-flex flex-row justify-content-center gap-3 flex-nowrap">
+            @foreach (var group in groups)
+            {
+                @RenderGroup(groups, group.Key)
+            }
+        </div>
+    }
+</div>
+
+@functions {
+    private IHtmlContent RenderGroup(IEnumerable<IGrouping<int, LockerRoom.Core.Entities.Locker>> groups, int groupId)
+    {
+        var group = groups.FirstOrDefault(g => g.Key == groupId);
+        if (group == null) return new HtmlString("<div class='text-muted'>Group missing</div>");
+
+        var html = $@"
+        <div class='group-card'>
+            <h5 class='group-title'>Group {group.Key}</h5>
+            <div class='lockers-grid'>";
+
+        foreach (var locker in group)
+        {
+            var color = locker.IsOccupied ? "occupied" : "free";
+            html += $@"
+                <div class='locker {color}' data-id='{locker.LockerID}' data-code='{locker.LockerCode}' onclick='selectLocker(this)'>
+                    {locker.LockerCode}
+                </div>";
+        }
+
+        html += "</div></div>";
+        return new HtmlString(html);
+    }
+}
+
+<!-- ✅ Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100"></div>
+
+<!-- 🔹 SCAN MODAL -->
+<div class="modal fade" id="scanModal" tabindex="-1" aria-labelledby="scanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="scanModalLabel">Scan Bracelet</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="mb-3">Please scan bracelet for locker <span id="scanLockerCode" class="fw-bold"></span></p>
+                <input type="text" id="braceletCode" class="form-control text-center" placeholder="Waiting for scan..." readonly />
+                <small class="text-muted d-block mt-2">Waiting for scanner input...</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🔹 PAYMENT MODAL -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="paymentModalLabel">Payment Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="paymentForm">
+                    <div class="mb-3">
+                        <label class="form-label">Currency</label>
+                        <select class="form-select" id="currency">
+                            <option value="EGP">EGP</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Payment Method</label>
+                        <select class="form-select" id="paymentMethod">
+                            <option value="Cash">Cash</option>
+                            <option value="POS">POS</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="amount" placeholder="Enter amount" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-success" id="savePayment">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🔹 BOOKING DETAILS MODAL -->
+<div class="modal fade" id="bookingDetailsModal" tabindex="-1" aria-labelledby="bookingDetailsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="bookingDetailsLabel">Booking Confirmed ✅</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <tr><th>Locker Code</th><td id="detailsLockerCode"></td></tr>
+                    <tr><th>Bracelet Code</th><td id="detailsBracelet"></td></tr>
+                    <tr><th>Payment Type</th><td id="detailsPayment"></td></tr>
+                    <tr><th>Amount</th><td id="detailsAmount"></td></tr>
+                    <tr><th>Booking Date</th><td id="detailsDate"></td></tr>
+                    <tr><th>Expires At</th><td id="detailsExpire"></td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🔹 ALERT MODAL -->
+<div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="alertModalLabel">Locker Occupied</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="bi bi-exclamation-triangle-fill text-danger fs-1 mb-3"></i>
+                <p class="fw-semibold">⚠️ This locker is already occupied and cannot be booked again.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .locker-layout {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: nowrap; /* كل الـ groups في صف واحد */
+        overflow-x: auto;  /* تمرير أفقي لو الشاشة ضيقة */
+        padding-bottom: 10px;
+    }
+
+    .group-card {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 15px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        text-align: center;
+        min-width: 160px;
+    }
+
+    .group-title {
+        font-weight: bold;
+        color: #0c2a3e;
+        margin-bottom: 8px;
+    }
+
+    .lockers-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 5px;
+        justify-items: center;
+    }
+
+    .locker {
+        width: 45px;
+        height: 45px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 10px;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.1s ease;
+    }
+
+    .locker.free { background-color: #198754; }
+    .locker.occupied { background-color: #dc3545; }
+    .locker:hover { transform: scale(1.1); }
+
+    .center-space {
+        width: 250px;
+        height: 300px;
+        background: transparent;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function playSound(type) {
+            const audio = new Audio(type === 'success'
+                ? 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_4d7cfae5d6.mp3?filename=notification-113244.mp3'
+                : 'https://cdn.pixabay.com/download/audio/2021/09/17/audio_9e2e49b4e4.mp3?filename=error-2-126514.mp3');
+            audio.volume = 0.3;
+            audio.play();
+        }
+
+        function showToast(message, type = 'success') {
+            const icon = type === 'success'
+                ? '<i class="bi bi-check-circle-fill text-success me-2"></i>'
+                : '<i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>';
+
+            const toastHtml = `
+                <div class="toast align-items-center text-bg-light border-0 shadow mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex align-items-center">
+                        <div class="toast-body fw-semibold">${icon}${message}</div>
+                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>`;
+
+            const container = document.querySelector('.toast-container');
+            container.insertAdjacentHTML('beforeend', toastHtml);
+
+            const toastEl = container.lastElementChild;
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+            playSound(type);
+            toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+        }
+
+        let selectedLocker = null;
+        let braceletCode = "";
+        let currentCurrency = null;
+        let lastStatus = {};
+
+        function selectLocker(element) {
+            if (element.classList.contains('occupied')) {
+                new bootstrap.Modal(document.getElementById('alertModal')).show();
+                return;
+            }
+            selectedLocker = { id: element.dataset.id, code: element.dataset.code };
+            document.getElementById("scanLockerCode").textContent = selectedLocker.code;
+            document.getElementById("braceletCode").value = "";
+            braceletCode = "";
+            new bootstrap.Modal(document.getElementById("scanModal")).show();
+            startListeningForScan();
+        }
+
+        function startListeningForScan() {
+            let scanned = "";
+            const onKeyPress = (e) => {
+                if (e.key === "Enter") {
+                    document.removeEventListener("keypress", onKeyPress);
+                    braceletCode = scanned.trim();
+                    if (!braceletCode) return showToast("No bracelet code scanned", 'danger');
+                    bootstrap.Modal.getInstance(document.getElementById("scanModal")).hide();
+                    startBookingRequest(selectedLocker.id, braceletCode);
+                } else if (e.key.length === 1) scanned += e.key;
+            };
+            document.addEventListener("keypress", onKeyPress);
+        }
+
+        async function startBookingRequest(lockerId, bracelet) {
+            try {
+                const resp = await fetch('/Reception/StartBooking', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ LockerId: parseInt(lockerId), BraceletCode: bracelet })
+                });
+                if (!resp.ok) return showToast('StartBooking failed', 'danger');
+                const data = await resp.json();
+                currentCurrency = data.currency || null;
+                document.getElementById('amount').value = currentCurrency ? currentCurrency.amount : '';
+                new bootstrap.Modal(document.getElementById('paymentModal')).show();
+            } catch (err) { showToast('Error: ' + err.message, 'danger'); }
+        }
+
+        document.getElementById("savePayment").addEventListener("click", async function () {
+            const amount = document.getElementById("amount").value;
+            const payment = document.getElementById("paymentMethod").value;
+            const currencyId = currentCurrency ? currentCurrency.id : 0;
+
+            if (!amount || !selectedLocker || !braceletCode) return showToast("Fill all fields", 'danger');
+            this.disabled = true; this.textContent = "Saving...";
+
+            try {
+                const resp = await fetch('/Reception/ConfirmBooking', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        LockerId: parseInt(selectedLocker.id),
+                        BraceletCode: braceletCode,
+                        CurrencyId: currencyId,
+                        Amount: parseFloat(amount),
+                        PaymentType: payment
+                    })
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
+                    document.querySelector(`[data-id="${selectedLocker.id}"]`).classList.replace('free', 'occupied');
+                    const now = new Date();
+                    const expire = new Date(now);
+                    expire.setDate(expire.getDate() + 1);
+                    expire.setHours(6, 0, 0, 0);
+
+                    document.getElementById('detailsLockerCode').textContent = selectedLocker.code;
+                    document.getElementById('detailsBracelet').textContent = braceletCode;
+                    document.getElementById('detailsPayment').textContent = payment;
+                    document.getElementById('detailsAmount').textContent = amount + " " + (currentCurrency?.name || "");
+                    document.getElementById('detailsDate').textContent = now.toLocaleString();
+                    document.getElementById('detailsExpire').textContent = expire.toLocaleString();
+                    new bootstrap.Modal(document.getElementById('bookingDetailsModal')).show();
+                    showToast(`Locker ${selectedLocker.code} booked successfully ✅`, 'success');
+                } else showToast("Save failed", 'danger');
+            } catch (err) {
+                showToast("Error: " + err.message, 'danger');
+            } finally {
+                this.disabled = false; this.textContent = "Save";
+            }
+        });
+
+        async function updateLockers() {
+            const gender = '@ViewBag.Gender';
+            try {
+                const res = await fetch(`/Reception/GetLockersStatus?gender=${gender}`);
+                const data = await res.json();
+
+                data.forEach(l => {
+                    const el = document.querySelector(`[data-id="${l.lockerID}"]`);
+                    if (!el) return;
+
+                    const currentStatus = l.isOccupied ? "occupied" : "free";
+                    const previousStatus = lastStatus[l.lockerID];
+
+                    if (previousStatus && previousStatus !== currentStatus) {
+                        if (previousStatus === "occupied" && currentStatus === "free") {
+                            showToast(`Locker ${l.lockerCode} is now available ✅`, 'success');
+                        }
+                    }
+
+                    if (l.isOccupied) {
+                        el.classList.add('occupied');
+                        el.classList.remove('free');
+                    } else {
+                        el.classList.add('free');
+                        el.classList.remove('occupied');
+                    }
+
+                    lastStatus[l.lockerID] = currentStatus;
+                });
+            } catch (err) {
+                console.error("Error updating lockers:", err);
+            }
+        }
+
+        updateLockers();
+        setInterval(updateLockers, 30000);
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+}
+
+
+@*  @using Microsoft.AspNetCore.Html
+@model IEnumerable<LockerRoom.Core.Entities.Locker>
+
+@{
+    ViewData["Title"] = $"Reception — {ViewBag.Gender}";
+    var groups = Model.GroupBy(l => l.GroupID).ToList();
+}
+
+<div class="container-fluid mt-4">
+    <h2 class="text-center mb-4 fw-bold">Reception — @ViewBag.Gender</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">No lockers found for @ViewBag.Gender</div>
+    }
+    else
+    {
+        <div class="locker-layout">
+            <div class="top-section d-flex justify-content-center gap-4">
+                @RenderGroup(groups, 1)
+            </div>
+
+            <div class="middle-section d-flex justify-content-between mt-4">
+                <div class="left-section">
+                    @RenderGroup(groups, 2)
+                </div>
+                <div class="center-space"></div>
+                <div class="right-section">
+                    @RenderGroup(groups, 3)
+                </div>
+            </div>
+
+            <div class="bottom-section d-flex justify-content-center gap-4 mt-4">
+                @RenderGroup(groups, 4)
+            </div>
+        </div>
+    }
+</div>
+
+@functions {
+    private IHtmlContent RenderGroup(IEnumerable<IGrouping<int, LockerRoom.Core.Entities.Locker>> groups, int groupId)
+    {
+        var group = groups.FirstOrDefault(g => g.Key == groupId);
+        if (group == null) return new HtmlString("<div class='text-muted'>Group missing</div>");
+
+        var html = $@"
+        <div class='group-card'>
+            <h5 class='group-title'>Group {group.Key}</h5>
+            <div class='lockers-grid'>";
+
+        foreach (var locker in group)
+        {
+            var color = locker.IsOccupied ? "occupied" : "free";
+            html += $@"
+                <div class='locker {color}' data-id='{locker.LockerID}' data-code='{locker.LockerCode}' onclick='selectLocker(this)'>
+                    {locker.LockerCode}
+                </div>";
+        }
+
+        html += "</div></div>";
+        return new HtmlString(html);
+    }
+}
+
+<!-- ✅ Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100"></div>
+
+<!-- 🔹 SCAN MODAL -->
+<div class="modal fade" id="scanModal" tabindex="-1" aria-labelledby="scanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="scanModalLabel">Scan Bracelet</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="mb-3">Please scan bracelet for locker <span id="scanLockerCode" class="fw-bold"></span></p>
+                <input type="text" id="braceletCode" class="form-control text-center" placeholder="Waiting for scan..." readonly />
+                <small class="text-muted d-block mt-2">Waiting for scanner input...</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🔹 PAYMENT MODAL -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="paymentModalLabel">Payment Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="paymentForm">
+                    <div class="mb-3">
+                        <label class="form-label">Currency</label>
+                        <select class="form-select" id="currency">
+                            <option value="EGP">EGP</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Payment Method</label>
+                        <select class="form-select" id="paymentMethod">
+                            <option value="Cash">Cash</option>
+                            <option value="POS">POS</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="amount" placeholder="Enter amount" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-success" id="savePayment">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🔹 BOOKING DETAILS MODAL -->
+<div class="modal fade" id="bookingDetailsModal" tabindex="-1" aria-labelledby="bookingDetailsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="bookingDetailsLabel">Booking Confirmed ✅</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <tr><th>Locker Code</th><td id="detailsLockerCode"></td></tr>
+                    <tr><th>Bracelet Code</th><td id="detailsBracelet"></td></tr>
+                    <tr><th>Payment Type</th><td id="detailsPayment"></td></tr>
+                    <tr><th>Amount</th><td id="detailsAmount"></td></tr>
+                    <tr><th>Booking Date</th><td id="detailsDate"></td></tr>
+                    <tr><th>Expires At</th><td id="detailsExpire"></td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🔹 ALERT MODAL -->
+<div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="alertModalLabel">Locker Occupied</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="bi bi-exclamation-triangle-fill text-danger fs-1 mb-3"></i>
+                <p class="fw-semibold">⚠️ This locker is already occupied and cannot be booked again.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .locker-layout {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .group-card {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .group-title {
+        font-weight: bold;
+        color: #0c2a3e;
+        margin-bottom: 10px;
+    }
+
+    .lockers-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        justify-items: center;
+    }
+
+    .locker {
+        width: 60px;   /* حجم أكبر */
+        height: 60px;  /* حجم أكبر */
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 14px;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.1s ease;
+    }
+
+    .locker.free { background-color: #198754; }
+    .locker.occupied { background-color: #dc3545; }
+    .locker:hover { transform: scale(1.1); }
+
+    .center-space {
+        width: 250px;
+        height: 300px;
+        background: transparent;
+    }
+</style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ✅ Notification sound
+        function playSound(type) {
+            const audio = new Audio(type === 'success'
+                ? 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_4d7cfae5d6.mp3?filename=notification-113244.mp3'
+                : 'https://cdn.pixabay.com/download/audio/2021/09/17/audio_9e2e49b4e4.mp3?filename=error-2-126514.mp3');
+            audio.volume = 0.3;
+            audio.play();
+        }
+
+        // ✅ Toast Notifications
+        function showToast(message, type = 'success') {
+            const icon = type === 'success'
+                ? '<i class="bi bi-check-circle-fill text-success me-2"></i>'
+                : '<i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>';
+            const toastHtml = `
+                <div class="toast align-items-center text-bg-light border-0 shadow mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex align-items-center">
+                        <div class="toast-body fw-semibold">${icon}${message}</div>
+                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>`;
+            const container = document.querySelector('.toast-container');
+            container.insertAdjacentHTML('beforeend', toastHtml);
+            const toastEl = container.lastElementChild;
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+            playSound(type);
+            toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+        }
+
+        // Locker booking logic
+        let selectedLocker = null;
+        let braceletCode = "";
+        let currentCurrency = null;
+        let lastStatus = {};
+
+        function selectLocker(element) {
+            if (element.classList.contains('occupied')) {
+                new bootstrap.Modal(document.getElementById('alertModal')).show();
+                return;
+            }
+            selectedLocker = { id: element.dataset.id, code: element.dataset.code };
+            document.getElementById("scanLockerCode").textContent = selectedLocker.code;
+            document.getElementById("braceletCode").value = "";
+            braceletCode = "";
+            new bootstrap.Modal(document.getElementById("scanModal")).show();
+            startListeningForScan();
+        }
+
+        function startListeningForScan() {
+            let scanned = "";
+            const onKeyPress = (e) => {
+                if (e.key === "Enter") {
+                    document.removeEventListener("keypress", onKeyPress);
+                    braceletCode = scanned.trim();
+                    if (!braceletCode) return showToast("No bracelet code scanned", 'danger');
+                    bootstrap.Modal.getInstance(document.getElementById("scanModal")).hide();
+                    startBookingRequest(selectedLocker.id, braceletCode);
+                } else if (e.key.length === 1) scanned += e.key;
+            };
+            document.addEventListener("keypress", onKeyPress);
+        }
+
+        async function startBookingRequest(lockerId, bracelet) {
+            try {
+                const resp = await fetch('/Reception/StartBooking', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ LockerId: parseInt(lockerId), BraceletCode: bracelet })
+                });
+                if (!resp.ok) return showToast('StartBooking failed', 'danger');
+                const data = await resp.json();
+                currentCurrency = data.currency || null;
+                document.getElementById('amount').value = currentCurrency ? currentCurrency.amount : '';
+                new bootstrap.Modal(document.getElementById('paymentModal')).show();
+            } catch (err) { showToast('Error: ' + err.message, 'danger'); }
+        }
+
+        document.getElementById("savePayment").addEventListener("click", async function () {
+            const amount = document.getElementById("amount").value;
+            const payment = document.getElementById("paymentMethod").value;
+            const currencyId = currentCurrency ? currentCurrency.id : 0;
+
+            if (!amount || !selectedLocker || !braceletCode) return showToast("Fill all fields", 'danger');
+            this.disabled = true; this.textContent = "Saving...";
+
+            try {
+                const resp = await fetch('/Reception/ConfirmBooking', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        LockerId: parseInt(selectedLocker.id),
+                        BraceletCode: braceletCode,
+                        CurrencyId: currencyId,
+                        Amount: parseFloat(amount),
+                        PaymentType: payment
+                    })
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
+                    document.querySelector(`[data-id="${selectedLocker.id}"]`).classList.replace('free', 'occupied');
+
+                    const now = new Date();
+                    const expire = new Date(now);
+                    expire.setDate(expire.getDate() + 1);
+                    expire.setHours(6, 0, 0, 0);
+
+                    document.getElementById('detailsLockerCode').textContent = selectedLocker.code;
+                    document.getElementById('detailsBracelet').textContent = braceletCode;
+                    document.getElementById('detailsPayment').textContent = payment;
+                    document.getElementById('detailsAmount').textContent = amount + " " + (currentCurrency?.name || "");
+                    document.getElementById('detailsDate').textContent = now.toLocaleString();
+                    document.getElementById('detailsExpire').textContent = expire.toLocaleString();
+
+                    new bootstrap.Modal(document.getElementById('bookingDetailsModal')).show();
+                    showToast(`Locker ${selectedLocker.code} booked successfully ✅`, 'success');
+                } else showToast("Save failed", 'danger');
+            } catch (err) {
+                showToast("Error: " + err.message, 'danger');
+            } finally {
+                this.disabled = false; this.textContent = "Save";
+            }
+        });
+
+        async function updateLockers() {
+            const gender = '@ViewBag.Gender';
+            try {
+                const res = await fetch(`/Reception/GetLockersStatus?gender=${gender}`);
+                const data = await res.json();
+
+                data.forEach(l => {
+                    const el = document.querySelector(`[data-id="${l.lockerID}"]`);
+                    if (!el) return;
+
+                    const currentStatus = l.isOccupied ? "occupied" : "free";
+                    const previousStatus = lastStatus[l.lockerID];
+
+                    if (previousStatus && previousStatus !== currentStatus) {
+                        if (previousStatus === "occupied" && currentStatus === "free") {
+                            showToast(`Locker ${l.lockerCode} is now available ✅`, 'success');
+                        }
+                    }
+
+                    if (l.isOccupied) {
+                        el.classList.add('occupied');
+                        el.classList.remove('free');
+                    } else {
+                        el.classList.add('free');
+                        el.classList.remove('occupied');
+                    }
+
+                    lastStatus[l.lockerID] = currentStatus;
+                });
+            } catch (err) {
+                console.error("Error updating lockers:", err);
+            }
+        }
+
+        updateLockers();
+        setInterval(updateLockers, 30000);
+    </script>
+}
+ *@

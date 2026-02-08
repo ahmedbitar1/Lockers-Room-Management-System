@@ -1,0 +1,71 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\ahmed.essamm\\source\\repos\\Locker_Room\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{DC9ADF26-2719-451E-8EE6-425C7F96AB4D}|LockerRoom.Domain\\LockerRoom.Core.csproj|c:\\users\\ahmed.essamm\\source\\repos\\locker_room\\lockerroom.domain\\interfaces\\iposservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DC9ADF26-2719-451E-8EE6-425C7F96AB4D}|LockerRoom.Domain\\LockerRoom.Core.csproj|solutionrelative:lockerroom.domain\\interfaces\\iposservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EE86B561-65D3-41F5-8D01-9B876472D2FD}|LockerRoom.Web\\LockerRoom.Web.csproj|c:\\users\\ahmed.essamm\\source\\repos\\locker_room\\lockerroom.web\\controllers\\receptioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EE86B561-65D3-41F5-8D01-9B876472D2FD}|LockerRoom.Web\\LockerRoom.Web.csproj|solutionrelative:lockerroom.web\\controllers\\receptioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EE86B561-65D3-41F5-8D01-9B876472D2FD}|LockerRoom.Web\\LockerRoom.Web.csproj|c:\\users\\ahmed.essamm\\source\\repos\\locker_room\\lockerroom.web\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{EE86B561-65D3-41F5-8D01-9B876472D2FD}|LockerRoom.Web\\LockerRoom.Web.csproj|solutionrelative:lockerroom.web\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "IPOSService.cs",
+              "DocumentMoniker": "C:\\Users\\ahmed.essamm\\source\\repos\\Locker_Room\\LockerRoom.Domain\\Interfaces\\IPOSService.cs",
+              "RelativeDocumentMoniker": "LockerRoom.Domain\\Interfaces\\IPOSService.cs",
+              "ToolTip": "C:\\Users\\ahmed.essamm\\source\\repos\\Locker_Room\\LockerRoom.Domain\\Interfaces\\IPOSService.cs",
+              "RelativeToolTip": "LockerRoom.Domain\\Interfaces\\IPOSService.cs",
+              "ViewState": "AgIAANMAAAAAAAAAAAAmwOkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-11T11:12:57.09Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\ahmed.essamm\\source\\repos\\Locker_Room\\LockerRoom.Web\\appsettings.json",
+              "RelativeDocumentMoniker": "LockerRoom.Web\\appsettings.json",
+              "ToolTip": "C:\\Users\\ahmed.essamm\\source\\repos\\Locker_Room\\LockerRoom.Web\\appsettings.json",
+              "RelativeToolTip": "LockerRoom.Web\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-12-10T11:47:10.003Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ReceptionController.cs",
+              "DocumentMoniker": "C:\\Users\\ahmed.essamm\\source\\repos\\Locker_Room\\LockerRoom.Web\\Controllers\\ReceptionController.cs",
+              "RelativeDocumentMoniker": "LockerRoom.Web\\Controllers\\ReceptionController.cs",
+              "ToolTip": "C:\\Users\\ahmed.essamm\\source\\repos\\Locker_Room\\LockerRoom.Web\\Controllers\\ReceptionController.cs",
+              "RelativeToolTip": "LockerRoom.Web\\Controllers\\ReceptionController.cs",
+              "ViewState": "AgIAAPUAAAAAAAAAAAAowP0AAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-16T11:47:48.806Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

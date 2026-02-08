@@ -1,0 +1,15 @@
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\bin\Debug\net9.0\LockerRoom.Application.deps.json
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\bin\Debug\net9.0\LockerRoom.Application.dll
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\bin\Debug\net9.0\LockerRoom.Application.pdb
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\bin\Debug\net9.0\LockerRoom.Core.dll
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\bin\Debug\net9.0\LockerRoom.Core.pdb
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\obj\Debug\net9.0\LockerRoom.Application.csproj.AssemblyReference.cache
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\obj\Debug\net9.0\LockerRoom.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\obj\Debug\net9.0\LockerRoom.Application.AssemblyInfoInputs.cache
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\obj\Debug\net9.0\LockerRoom.Application.AssemblyInfo.cs
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\obj\Debug\net9.0\LockerRoom.Application.csproj.CoreCompileInputs.cache
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\obj\Debug\net9.0\LockerRo.DCB416A1.Up2Date
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\obj\Debug\net9.0\LockerRoom.Application.dll
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\obj\Debug\net9.0\refint\LockerRoom.Application.dll
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\obj\Debug\net9.0\LockerRoom.Application.pdb
+C:\Users\ahmed.essamm\source\repos\Locker_Room\LockerRoom.Application\obj\Debug\net9.0\ref\LockerRoom.Application.dll
