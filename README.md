@@ -272,7 +272,6 @@ All POS transactions are logged to `C:\Temp\POS_Logs.txt` for debugging purposes
 
 **Project Owner**: Ahmed Essam  
 **Email**: ahmedesamo778@gmail.com  
-**GitHub**: [ahmedbitar1](https://github.com/ahmedbitar1)
 
 ---
 
@@ -288,13 +287,5 @@ This project is proprietary software developed for internal use.
 - Entity Framework Core for simplified data access
 - Bootstrap for responsive UI components
 
----
-
-**Made with ❤️ by Ahmed Essam**
-```
-
----
-
-### 3️⃣ احفظ الملف باسم:
-```
+--
 README.md
